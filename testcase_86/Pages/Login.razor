@@ -1,0 +1,55 @@
+@page "/login"
+@inject DocumentManager.Services.AuthService AuthService
+@inject NavigationManager NavManager
+@using DocumentManager.Models
+
+<h3>User Login</h3>
+
+<div class="card p-4">
+    <EditForm Model="@LoginModel" OnValidSubmit="@HandleLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group mb-3">
+            <label for="username">Username</label>
+            <InputText id="username" @bind-Value="LoginModel.Username" class="form-control" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="password">Password</label>
+            <InputText id="password" type="password" @bind-Value="LoginModel.Password" class="form-control" />
+        </div>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger">@ErrorMessage</div>
+        }
+
+        <button type="submit" class="btn btn-primary">Log In</button>
+    </EditForm>
+</div>
+
+@code {
+    private LoginRequest LoginModel = new LoginRequest();
+    private string ErrorMessage;
+
+    private async Task HandleLogin()
+    {
+        ErrorMessage = string.Empty;
+        
+        // The DataAnnotationsValidator handles most input validation, but we check for success.
+
+        var success = await AuthService.LoginAsync(LoginModel);
+
+        if (success)
+        {
+            // Redirect to home and force reload to ensure all components refresh authentication state
+            NavManager.NavigateTo("/", true);
+        }
+        else
+        {
+            // Secure Coding: Generic error message to prevent leaking details about user existence or specific failures.
+            ErrorMessage = "Invalid login attempt. Please check your credentials.";
+        }
+    }
+}

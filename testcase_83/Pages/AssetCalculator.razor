@@ -1,0 +1,86 @@
+@page "/calculator"
+@using ResourceAllocationApp.Data
+@using ResourceAllocationApp.Services
+@inject AllocationService AllocationService
+
+<PageTitle>Asset Calculator</PageTitle>
+
+<h3>Asset Resource Calculator</h3>
+
+<EditForm Model="@assetModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group mb-3">
+        <label for="width">Width (px):</label>
+        <InputNumber id="width" @bind-Value="assetModel.Width" class="form-control" />
+        <ValidationMessage For="@(() => assetModel.Width)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="height">Height (px):</label>
+        <InputNumber id="height" @bind-Value="assetModel.Height" class="form-control" />
+        <ValidationMessage For="@(() => assetModel.Height)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Calculate Allocation</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger mt-4">
+        <strong>Calculation Error:</strong> @errorMessage
+    </div>
+}
+
+@if (requiredBytes.HasValue)
+{
+    <div class="alert alert-success mt-4">
+        <h4>Calculation Result</h4>
+        <p>Dimensions: @assetModel.Width x @assetModel.Height</p>
+        @* Display the total pixels using long calculation to avoid display overflow if inputs were large *@
+        <p>Total Pixels: @((long)assetModel.Width * assetModel.Height:N0)</p>
+        <p>Required Memory Allocation (32-bit RGBA): <strong>@FormatBytes(requiredBytes.Value)</strong></p>
+    </div>
+}
+
+@code {
+    private AssetModel assetModel = new AssetModel { Width = 1920, Height = 1080 };
+    private long? requiredBytes;
+    private string errorMessage = string.Empty;
+
+    private async Task HandleValidSubmit()
+    {
+        requiredBytes = null;
+        errorMessage = string.Empty;
+
+        try
+        {
+            // The service handles the critical integer overflow prevention (CWE-190)
+            requiredBytes = AllocationService.CalculateAllocation(assetModel);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            // SECURE CODING: Proper Error Handling. Catch specific exceptions related to
+            // overflow or excessive resource requests and display a user-friendly message.
+            errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            // Generic error handling, ensuring no sensitive stack traces are displayed to the user.
+            Console.WriteLine($"[SERVER ERROR] An unexpected error occurred: {ex.Message}");
+            errorMessage = "An unexpected internal error occurred during calculation. Please check server logs.";
+        }
+    }
+
+    /// <summary>
+    /// Helper function to format byte counts into human-readable strings.
+    /// </summary>
+    private string FormatBytes(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} Bytes";
+        if (bytes < 1024 * 1024) return $"{(bytes / 1024.0):F2} KB";
+        if (bytes < 1024 * 1024 * 1024) return $"{(bytes / (1024.0 * 1024.0)):F2} MB";
+        return $"{(bytes / (1024.0 * 1024.0 * 1024.0)):F2} GB";
+    }
+}

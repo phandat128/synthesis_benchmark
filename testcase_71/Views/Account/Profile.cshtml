@@ -1,0 +1,55 @@
+@model ProfileManager.Models.UserProfileViewModel
+
+@{
+    ViewBag.Title = "Manage Profile";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@using (Html.BeginForm("UpdateEmail", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    // VULNERABILITY MITIGATION: CSRF Token Inclusion
+    // This helper renders the hidden form field containing the anti-forgery token, 
+    // which is required by the [ValidateAntiForgeryToken] attribute in the controller.
+    @Html.AntiForgeryToken()
+
+    <h4>Update your email address.</h4>
+    <hr />
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    @Html.HiddenFor(m => m.UserId)
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.CurrentEmail, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @* Output Encoding: Razor automatically encodes output, preventing XSS. *@
+            <p class="form-control-static">@Html.DisplayFor(m => m.CurrentEmail)</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.NewEmail, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.NewEmail, new { @class = "form-control", type = "email" })
+            @Html.ValidationMessageFor(m => m.NewEmail, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" class="btn btn-primary" value="Update Email" />
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @* Ensure client-side validation scripts are loaded *@
+    @* @Scripts.Render("~/bundles/jqueryval") *@@
+}

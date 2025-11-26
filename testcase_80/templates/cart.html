@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout Step 1: Cart</title>
+</head>
+<body>
+    <h1>Shopping Cart</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="{{ category | e }}">{{ message | e }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    {% if cart.items %}
+        <h2>Current Items</h2>
+        <table>
+            <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+            <tbody>
+            {% for item in cart.items %}
+                <!-- Jinja2 auto-escaping prevents XSS here -->
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.qty }}</td>
+                    <td>${{ "%.2f" | format(item.price * item.qty) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <p>Total: <strong>${{ "%.2f" | format(cart.total) }}</strong></p>
+    {% else %}
+        <p>Your cart is currently empty. Add at least one item to proceed.</p>
+    {% endif %}
+
+    <h2>Update Cart Quantity</h2>
+    <form method="POST" action="{{ url_for('checkout.cart_view') }}">
+        <!-- In a real app, include a CSRF token here -->
+        <label for="item_count">Quantity of Product A (Max 100):</label>
+        <input type="number" id="item_count" name="item_count" 
+               value="{{ cart.items[0].qty if cart.items else 1 }}" 
+               min="1" max="100" required>
+        <button type="submit">Proceed to Payment</button>
+    </form>
+</body>
+</html>

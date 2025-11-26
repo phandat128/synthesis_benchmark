@@ -1,0 +1,68 @@
+@using DocumentManager.Services
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">DocumentManager</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        
+        <AuthorizeView>
+            <Authorized Context="authContext">
+                @* Link to protected page, authorization check is done within the page itself *@
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="sensitive-docs">
+                        <span class="oi oi-lock-locked" aria-hidden="true"></span> Sensitive Docs
+                    </NavLink>
+                </div>
+                
+                @* Logout button *@
+                <div class="nav-item px-3">
+                    <button class="nav-link btn btn-link" @onclick="Logout">
+                        <span class="oi oi-account-logout" aria-hidden="true"></span> Logout (@authContext.User.Identity.Name)
+                    </button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="oi oi-account-login" aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    [Inject]
+    private AuthService AuthService { get; set; }
+
+    [Inject]
+    private NavigationManager NavManager { get; set; }
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        NavManager.NavigateTo("/login", true);
+    }
+}

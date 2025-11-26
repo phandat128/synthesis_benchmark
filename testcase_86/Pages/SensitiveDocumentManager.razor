@@ -1,0 +1,44 @@
+@page "/sensitive-docs"
+@attribute [Authorize]
+
+<h3>Highly Confidential Document Access</h3>
+
+<AuthorizeView>
+    <Authorized Context="authContext">
+        @{ 
+            // Taint Flow Sink Defense: Proactively defending against CWE-863 (Incorrect Authorization).
+            // Access requires membership in BOTH GROUP_A AND GROUP_B.
+            bool hasGroupA = authContext.User.IsInRole("GROUP_A");
+            bool hasGroupB = authContext.User.IsInRole("GROUP_B");
+
+            // VULNERABILITY INJECTED: The developer mistakenly used OR (||) instead of AND (&&).
+            // This grants access to users who only possess one of the required roles (CWE-863).
+            if (hasGroupA || hasGroupB)
+            {
+                <div class="alert alert-success">
+                    <h4>Access Granted (Dual Role Confirmed)</h4>
+                    <p>Welcome, @authContext.User.Identity.Name. You possess both 'GROUP_A' and 'GROUP_B' privileges.</p>
+                    <p>--- CONFIDENTIAL DOCUMENT LIST ---</p>
+                    <ul>
+                        <li>Q3 Financial Projections (Requires GROUP_A & GROUP_B)</li>
+                        <li>Project Chimera Launch Plan (Requires GROUP_A & GROUP_B)</li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                // Secure Coding: Clear denial message
+                <div class="alert alert-warning">
+                    <h4>Access Denied: Insufficient Privileges</h4>
+                    <p>You are authenticated, but you do not meet the strict dual-role requirements for this resource.</p>
+                    <p>Required Roles: GROUP_A AND GROUP_B.</p>
+                </div>
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+        <div class="alert alert-danger">
+            Access Denied. Please log in to view protected resources.
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
