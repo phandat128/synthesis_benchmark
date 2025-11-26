@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Comment Feed</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        .flash.success { color: green; border: 1px solid green; padding: 10px; margin-bottom: 15px; background-color: #e6ffe6; border-radius: 4px; }
+        .flash.error { color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px; background-color: #ffe6e6; border-radius: 4px; }
+        .comment { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 4px; background-color: #fff; }
+        .comment-author { font-weight: bold; color: #333; margin-bottom: 5px; }
+        .comment-date { font-size: 0.8em; color: #777; float: right; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Secure Comment System</h1>
+        
+        {# Display flash messages (used for secure, non-sensitive error reporting) #}
+        {% set messages = request.session.pop_flash() %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

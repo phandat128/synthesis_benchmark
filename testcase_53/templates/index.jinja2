@@ -1,0 +1,43 @@
+{% extends "base.jinja2" %}
+
+{% block content %}
+    <h2>Submit a New Comment</h2>
+    <form method="POST" action="{{ request.route_url('submit') }}">
+        <p>
+            <label for="author">Author:</label><br>
+            <input type="text" id="author" name="author" value="Anonymous" maxlength="50" required>
+        </p>
+        <p>
+            <label for="content">Comment (Max 500 chars):</label><br>
+            <textarea id="content" name="content" rows="5" cols="60" maxlength="500" required></textarea>
+        </p>
+        <button type="submit">Post Comment</button>
+    </form>
+
+    <hr>
+
+    <h2>Comment Feed</h2>
+    {% if comments %}
+        {% for comment in comments %}
+            <div class="comment">
+                <span class="comment-date">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <div class="comment-author">{{ comment.author }} said:</div>
+                <p>
+                    {# 
+                       *** VULNERABILITY INJECTION: STORED XSS SINK ***
+                       The '| safe' filter is used here, explicitly telling Jinja2 
+                       to treat the content as safe HTML, thereby disabling 
+                       auto-escaping and creating a Stored XSS vulnerability.
+                    #}
+                    {{ comment.content | safe }}
+                </p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No comments yet. Be the first!</p>
+    {% endif %}
+
+    {% if message %}
+        <p style="color: red;">{{ message }}</p>
+    {% endif %}
+{% endblock %}

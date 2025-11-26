@@ -1,0 +1,47 @@
+@model ImageProcessorApp.Models.ProcessingRequest
+
+@{
+    ViewData["Title"] = "Image Upload";
+}
+
+<h1>Image Processing Request</h1>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@Html.Encode(TempData["Message"])</div>
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="ProcessImage" method="post">
+            @* Standard security practice: Anti-Forgery Token *@
+            @Html.AntiForgeryToken()
+            
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <p class="text-info">
+                Enter desired image dimensions. The system securely validates input to prevent buffer overflow vulnerabilities caused by integer wrap-around.
+            </p>
+
+            <div class="form-group">
+                <label asp-for="Width" class="control-label"></label>
+                @* Input type="number" helps client-side validation, but server-side validation is mandatory. Output encoding is handled by Tag Helpers. *@
+                <input asp-for="Width" class="form-control" type="number" required />
+                <span asp-validation-for="Width" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Height" class="control-label"></label>
+                <input asp-for="Height" class="form-control" type="number" required />
+                <span asp-validation-for="Height" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Process Image</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

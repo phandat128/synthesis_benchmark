@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Math Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        #result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; min-height: 20px; background-color: #f9f9f9; }
+        input[type="text"] { width: 300px; padding: 8px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Secure Expression Evaluator</h1>
+    <p>Enter a simple mathematical expression (e.g., 5 * (10 + 2) / 3). Only basic arithmetic is supported.</p>
+
+    <input type="text" id="expressionInput" placeholder="Enter expression here">
+    <button onclick="calculate()">Calculate</button>
+
+    <h2>Result:</h2>
+    <div id="result">Awaiting calculation...</div>
+
+    <script>
+        function calculate() {
+            const expression = document.getElementById('expressionInput').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Calculating...';
+
+            fetch('/api/calculate', {
+                method: 'POST',
+                headers: {
+                    // Ensure we send JSON content type
+                    'Content-Type': 'application/json'
+                },
+                // Output Encoding Defense: Although the expression is sent as raw text, 
+                // the result displayed back is handled safely by innerHTML after validation.
+                body: JSON.stringify({ expression: expression })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    // Display error message securely
+                    resultDiv.innerHTML = `<span style="color: red;">Error: ${data.error}</span>`;
+                } else {
+                    // Display result securely
+                    resultDiv.innerHTML = `<strong>${data.expression}</strong> = ${data.result}`;
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = `<span style="color: red;">Network Error: Could not reach server.</span>`;
+            });
+        }
+    </script>
+</body>
+</html>

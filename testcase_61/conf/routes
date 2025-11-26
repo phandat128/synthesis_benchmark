@@ -1,0 +1,10 @@
+# Routes
+# This file defines all HTTP endpoints for the application.
+
+# Health Check / Default Route
+GET     /                       controllers.Application.index()
+
+# User Profile API
+# Maps the path parameter :id to the controller method.
+# The parameter is captured as a String, requiring validation in the controller.
+GET     /api/users/:id          controllers.UserController.getUserById(id: String)

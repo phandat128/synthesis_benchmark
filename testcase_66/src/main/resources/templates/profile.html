@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .message { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"] { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Profile: <span th:text="${username}"></span></h1>
+        
+        <!-- Display flash messages -->
+        <div th:if="${message}" class="message" th:text="${message}">Success Message</div>
+        <div th:if="${error}" class="error" th:text="${error}">Error Message</div>
+
+        <h2>Current Email: <span th:text="${currentEmail}"></span></h2>
+
+        <h3>Update Email Address</h3>
+        
+        <!-- 
+        The form still includes the hidden CSRF token field, but the server-side check
+        has been disabled in SecurityConfig.java, rendering this token useless for defense.
+        -->
+        <form th:action="@{/profile/update-email}" method="POST">
+            <label for="newEmail">New Email:</label>
+            <input type="text" id="newEmail" name="newEmail" required placeholder="Enter new email address">
+            
+            <!-- Explicit CSRF Token Inclusion using Thymeleaf/Spring Security integration -->
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            
+            <button type="submit">Update Email</button>
+        </form>
+        
+        <p><a th:href="@{/logout}">Logout</a></p>
+    </div>
+</body>
+</html>
