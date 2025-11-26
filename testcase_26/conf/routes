@@ -1,0 +1,11 @@
+# User Profile Management Routes
+
+# Redirect root to profile view (assuming user is logged in)
+GET     /                       controllers.UserProfileController.profile()
+
+# Display the user profile and email update form
+GET     /profile                controllers.UserProfileController.profile()
+
+# Handle the state-changing email update request.
+# This POST endpoint is protected by the @RequireCSRFCheck annotation in the controller.
+POST    /profile/update_email   controllers.UserProfileController.updateEmail()

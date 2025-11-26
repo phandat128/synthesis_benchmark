@@ -1,0 +1,68 @@
+@(user: models.User, emailForm: play.data.Form[controllers.UserProfileController.EmailUpdateData], request: play.mvc.Http.Request)
+
+@import helper._
+@import play.core.j.PlayMagicForJava._
+
+@main("User Profile Settings") {
+    <h1>User Profile for @user.getUsername()</h1>
+
+    @* Display flash messages (success/error) *@
+    @request.flash().get("success").map {
+        message => <div style="color: green; border: 1px solid green; padding: 10px;">@message</div>
+    }
+    @request.flash().get("error").map {
+        message => <div style="color: red; border: 1px solid red; padding: 10px;">@message</div>
+    }
+
+    <h2>Current Settings</h2>
+    <p><strong>User ID:</strong> @user.getId()</p>
+    @* SECURE: Output Encoding is handled by default by Play's Scala templates, preventing XSS. *@
+    <p><strong>Current Email:</strong> @user.getEmail()</p>
+
+    <h2>Update Email Address</h2>
+
+    @* 
+        SECURE IMPLEMENTATION AGAINST CSRF:
+        Using the helper.form ensures that the anti-CSRF token is automatically included 
+        in the form submission, which the controller then validates via @RequireCSRFCheck.
+    *@
+    @helper.form(action = routes.UserProfileController.updateEmail(), 'method -> "POST") {
+
+        @* Explicitly including the CSRF token field for clarity *@
+        @helper.CSRF.formField
+
+        @inputText(
+            emailForm("newEmail"),
+            '_label -> "New Email",
+            'id -> "new_email",
+            'placeholder -> "Enter new email address",
+            'type -> "email"
+        )
+
+        @* Display validation errors *@
+        @emailForm.error("newEmail").map { error =>
+            <p style="color: red;">@error.message</p>
+        }
+
+        <button type="submit">Update Email</button>
+    }
+}
+
+@* Simple main layout simulation for completeness *@
+@main(title: String)(content: Html) = {
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <title>@title</title>
+            <meta charset="utf-8">
+            <style>
+                body { font-family: Arial, sans-serif; }
+                input[type="email"] { width: 300px; padding: 8px; margin: 5px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+                button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+            </style>
+        </head>
+        <body>
+            @content
+        </body>
+    </html>
+}
