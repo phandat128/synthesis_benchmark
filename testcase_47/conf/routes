@@ -1,0 +1,9 @@
+# Routes file for the Configuration Microservice
+
+# Health Check / Default Route
+GET     /                       controllers.Application.index()
+
+# API Endpoints
+# Configuration Retrieval
+# Requires Authorization header (Bearer Token)
+GET     /api/v1/config          controllers.ConfigController.getConfig(request: Http.Request)

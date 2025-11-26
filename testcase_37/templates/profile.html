@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile Settings</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .message { padding: 10px; margin-bottom: 15px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Profile Settings for {{ user['username'] }}</h1>
+
+    {% if message %}
+        <div class="message {% if 'Success' in message %}success{% else %}error{% endif %}">
+            {{ message }}
+        </div>
+    {% end %}
+
+    <h2>Current Email: {{ user['email'] }}</h2>
+
+    <h3>Change Email Address</h3>
+    
+    <!-- 
+    SECURITY CRITICAL: 
+    The xsrf_form_html() function injects a hidden input field containing the 
+    anti-CSRF token (_xsrf). This token is required by Tornado for all POST requests 
+    when xsrf_cookies is enabled, effectively preventing Cross-Site Request Forgery (CWE-352).
+    -->
+    <form method="POST" action="/settings/email">
+        {% raw xsrf_form_html() %}
+        
+        <label for="new_email">New Email:</label>
+        <input type="email" id="new_email" name="new_email" required size="40">
+        <br><br>
+        <button type="submit">Update Email</button>
+    </form>
+
+    <p><a href="/logout">Logout</a></p>
+</body>
+</html>
