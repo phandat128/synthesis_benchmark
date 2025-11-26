@@ -1,0 +1,50 @@
+@model SecureMvcApp.Models.UserProfile
+
+@{
+    ViewBag.Title = "Upload Avatar";
+}
+
+<h2>Upload Avatar for @Model.Username</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+@using (Html.BeginForm("UploadAvatar", "Profile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken() @* CSRF Token *
+    
+    <div class="form-horizontal">
+        <h4>Select a new avatar image (Max 5MB, JPG, PNG, GIF only)</h4>
+        <hr />
+        
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="file">Image File</label>
+            <div class="col-md-10">
+                <input type="file" id="file" name="file" accept="image/jpeg, image/png, image/gif" required />
+                @Html.ValidationMessage("file", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Upload" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.AvatarPath))
+{
+    <h3>Current Avatar</h3>
+    <!-- 
+    SECURITY NOTE: 
+    If the AvatarPath points to the protected App_Data directory, a separate secure handler 
+    (e.g., a dedicated action method or HttpHandler) must be used to stream the image 
+    after authorization checks, preventing direct file access.
+    -->
+    <img src="@Url.Content(Model.AvatarPath)" alt="User Avatar" style="max-width: 200px; height: auto;" />
+}
