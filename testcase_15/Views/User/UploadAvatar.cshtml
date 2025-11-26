@@ -1,0 +1,42 @@
+@model SecureApp.Models.UserProfile
+
+@{ 
+    ViewBag.Title = "Upload Avatar";
+}
+
+<h2>Upload New Avatar</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@using (Html.BeginForm("UploadAvatar", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken() @* SECURITY: CSRF Token *
+
+    <div class="form-horizontal">
+        <h4>Select an image file (Max 5MB, JPG/PNG/GIF only)</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="file">Avatar File</label>
+            <div class="col-md-10">
+                @* Client-side accept attribute for usability, server-side validation is mandatory *
+                <input type="file" name="file" id="file" accept=".jpg,.jpeg,.png,.gif" required />
+                @Html.ValidationMessage("file", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Upload" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to Profile", "Profile")
+</div>

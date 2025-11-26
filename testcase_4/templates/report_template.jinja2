@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report Status</title>
+</head>
+<body>
+    <h1>Report Generation Status</h1>
+    
+    {# Jinja2 provides auto-escaping by default, preventing XSS vulnerabilities #}
+    {% if status == 'success' %}
+        <p>Your report (ID: {{ report_id }}) has been successfully generated.</p>
+        <p>Please check your downloads. If the download did not start automatically, click the link below:</p>
+        <a href="{{ download_url }}">Download Report</a>
+    {% else %}
+        <p style="color: red;">Error: {{ error_message }}</p>
+        <p>Please try again or contact support.</p>
+    {% endif %}
+    
+    <p>Timestamp: {{ now }}</p>
+</body>
+</html>
